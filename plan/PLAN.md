@@ -7,8 +7,7 @@ any skipped days (Settings → Schedule). Change the start, skip a holiday, and 
 **Goal:** pass the Google loop — 3–4 coding rounds, 1 system design, 1 Googleyness & Leadership —
 with the onsite in the second half of **February 2028**, after the GATE paper.
 
-The previous 26-week plan (May–Nov 2026) is in `archive/v1-26-week/`; it was not followed and is
-kept for its story inventory and company notes.
+The previous 26-week plan (May–Nov 2026, not followed) is kept in `archive/v1-26-week/`.
 
 ---
 

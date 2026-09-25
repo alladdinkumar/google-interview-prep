@@ -31,7 +31,7 @@ Your target tier (broad FAANG SDE-II/III, ~5.5 yrs exp). Five priority companies
 
 ### How to apply
 - Direct: https://careers.google.com
-- Referrals: ask Privafy connections, LPU alumni at Google
+- Referrals: ask current and former colleagues and college alumni at Google
 - Recruiter contact: don't chase; respond if they reach out
 
 ---
@@ -141,7 +141,7 @@ Your target tier (broad FAANG SDE-II/III, ~5.5 yrs exp). Five priority companies
 ### Prep emphasis for you
 - LLD is **critical** — Atlassian rounds are won/lost in LLD
 - Your Phase 3 LLD week is more important than for other companies
-- Past project deep dive: rehearse 1-2 deep technical stories with diagrams (EDR simulator architecture is perfect)
+- Past project deep dive: rehearse 1-2 deep technical stories with diagrams (a system you built end to end, with its numbers, is ideal)
 
 ### How to apply
 - Direct: https://www.atlassian.com/company/careers

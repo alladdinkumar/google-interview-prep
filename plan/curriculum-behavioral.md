@@ -6,9 +6,8 @@ behavioural round — and it can sink a strong coding packet. The interview-craf
 cover what the coding rounds grade beyond correctness: communication, testing your own code,
 writing in a doc without an IDE.
 
-The ten story slots from the original plan (resume-based, in
-`archive/v1-26-week/curriculum-behavioral.md`) are still the right inventory. Stories live in
-`notes/behavioral/stories/`.
+The ten story slots are listed in `trackers/behavioral.md` — fill each with a story from your
+own work. Stories live in `notes/behavioral/stories/`.
 
 ---
 

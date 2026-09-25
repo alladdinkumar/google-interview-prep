@@ -117,9 +117,9 @@ def reset(args, new_url, repo_name, dry):
         actions.append(f"restore projects/lld/*/src to the unsolved stubs (tag {STUBS_TAG})")
     if new_url:
         actions.append(f"point README links at {new_url}")
-    for a in actions:
-        say(f"    {a}")
     if dry:
+        for a in actions:
+            say(f"    {a}")
         return
 
     (ROOT / "webapp/progress.json").write_text('{\n  "done": {},\n  "version": 1\n}\n', encoding="utf-8", newline="\n")
@@ -135,6 +135,12 @@ def reset(args, new_url, repo_name, dry):
     run([sys.executable, "scripts/trackers.py", "--blank"])
     if has_tag:
         run(["git", "checkout", STUBS_TAG, "--", "projects/lld"])
+    # Lines that describe the previous owner's archive and persona, now deleted.
+    for rel in ("README.md", "plan/PLAN.md"):
+        p = ROOT / rel
+        lines = p.read_text(encoding="utf-8").splitlines()
+        keep = [l for l in lines if "archive/v1-26-week" not in l and "`prompt.md`" not in l]
+        p.write_text("\n".join(keep) + "\n", encoding="utf-8", newline="\n")
     if new_url:
         for rel in ("README.md", "webapp/README.md"):
             p = ROOT / rel
@@ -225,10 +231,11 @@ def main():
             raise SystemExit(f"{slug} is already this repository's origin. Pick a new --repo name.")
         if run(["gh", "repo", "view", slug], check=False).returncode == 0:
             raise SystemExit(f"{slug} already exists on GitHub. Pick another --repo name or delete it first.")
-        # Refuse to wipe the data of the account that owns this copy.
-        if origin_slug() and origin_slug().split("/")[0].lower() == login.lower() and not args.keep_data:
-            raise SystemExit(f"This copy belongs to your own account ({origin_slug()}): clearing it would delete your\n"
-                             "progress. Use --keep-data to move it to a new repo with your data.")
+    # Refuse to wipe the data of the account that owns this copy — with or without GitHub.
+    owner = login or gh_login()
+    if owner and origin_slug() and origin_slug().split("/")[0].lower() == owner.lower() and not args.keep_data:
+        raise SystemExit(f"This copy belongs to your own account ({origin_slug()}): clearing it would delete your\n"
+                         "progress. Use --keep-data to move it to a new repo with your data.")
 
     # ---- plan -----------------------------------------------------------
     say(f"  GitHub account : {login or '(skipped: --local-only)'}")
