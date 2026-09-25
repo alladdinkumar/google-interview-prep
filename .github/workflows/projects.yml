@@ -26,4 +26,6 @@ jobs:
         run: make build/tests CXX=g++-13
       - name: Test (score)
         working-directory: projects/lld/${{ matrix.project }}
-        run: ./build/tests | tee result.txt; echo "### ${{ matrix.project }}: $(tail -1 result.txt)" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          ./build/tests | tee result.txt || true
+          echo "### ${{ matrix.project }} — $(tail -1 result.txt)" >> "$GITHUB_STEP_SUMMARY"
