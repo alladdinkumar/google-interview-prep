@@ -164,7 +164,8 @@ def parse_plan():
         "topics": {t: T.public(catalogue[t]) for t in used_t},
         "problems": {k: problems[k] for k in sorted(used_p, key=lambda k: int(k[3:]))},
         "prompts": {
-            "head": T.GEMINI_HEAD,
+            "head": T.load_profile()["head"],
+            "situation": T.load_profile()["situation"],
             "topic": T.TOPIC_PROMPTS,
             "problem": T.PROBLEM_PROMPTS,
             "question": T.QUESTION_PROMPT,

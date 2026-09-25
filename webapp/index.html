@@ -401,7 +401,7 @@
     const phase = P.phases.find((p) => p.number === day.phase);
     const week = phase.weeks.find((w) => w.number === day.week);
     const L = [P.prompts.head, ""];
-    L.push(`Where I am: plan day ${day.dayNumber} of ${P.days.length}, week ${day.week} of ${P.totalWeeks} ("${week.title}"), phase ${phase.number} (${phase.title}). Date ${dateOfDay(day)}. I study about 10 hours a week alongside GATE exam preparation, so I need answers I can use in a 45-minute slot.`);
+    L.push(`Where I am: plan day ${day.dayNumber} of ${P.days.length}, week ${day.week} of ${P.totalWeeks} ("${week.title}"), phase ${phase.number} (${phase.title}). Date ${dateOfDay(day)}. ${P.prompts.situation}`);
     if (topic) L.push(`Topic ${topic.id} (${topic.areaName}): ${topic.name}.`);
     if (problem) {
       const t = P.topics[problem.topic];

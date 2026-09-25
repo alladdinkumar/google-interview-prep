@@ -8,7 +8,7 @@ log of every problem attempted (the lunch and Saturday sessions each ask for a r
 ## By topic
 
 | # | Topic | First week | Attempted | First try | Confidence | Last revisited |
-|---|-------|------------|-----------|-----------|------------|----------------|
+|---|---|---|---|---|---|---|
 | AL-1 | Asymptotic notation | 1 | 0 | 0 | 1 | — |
 | AL-2 | Arrays and dynamic arrays | 2 | 0 | 0 | 1 | — |
 | AL-3 | Hash table internals | 3 | 0 | 0 | 1 | — |
@@ -92,4 +92,4 @@ log of every problem attempted (the lunch and Saturday sessions each ask for a r
 ## Problem log
 
 | Date | LC | Title | Difficulty | Topic | Minutes | First try Y/N | Pattern | Redo by |
-|------|----|-------|------------|-------|---------|---------------|---------|---------|
+|---|---|---|---|---|---|---|---|---|

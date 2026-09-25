@@ -1,131 +1,40 @@
-# Mock Interview Tracker
+# Mocks and Contests
 
-Self-run mocks in Weeks 24 and 38, peer mocks weekly from Week 57, full loop simulations in Weeks 65-69. One row per mock, plus one per LeetCode contest.
+Every mock interview the plan schedules, and a log for the Sunday LeetCode contests.
+Score mocks on Google's four coding dimensions (coding, algorithms, communication, problem
+solving), each Strong No Hire → Strong Hire.
 
----
+## Planned mocks
 
-## Mock Schedule + Status
+| # | Week | What | Partner / platform | Result | Status |
+|---|---|---|---|---|---|
+| 1 | 24 | Mock interview (self): LC-189 Rotate Array (Medium, DS-2) and LC-535 Encode and Decode Tin | — | — | planned |
+| 2 | 57 | Mock coding interview #1 with a peer (Pramp or a friend), 45 min, in a Google Doc | — | — | planned |
+| 3 | 58 | Mock system design #1 with a peer, 45 min — use a design from weeks 51–56 | — | — | planned |
+| 4 | 59 | Mock coding interview #2 with a peer, 2 problems in 45 min, in a Google Doc | — | — | planned |
+| 5 | 60 | Mock behavioural round: a peer asks 5 questions from your story bank; record it | — | — | planned |
+| 6 | 60 | Work through IC-5 Mock interviews, BH-4 Failure, ambiguity and feedback: lectures and read | — | — | planned |
+| 7 | 61 | Mock coding interview #3 (peer) — Google-style: vague problem, you ask the clarifying ques | — | — | planned |
+| 8 | 62 | Mock system design #2 (peer) — a design you have not done before | — | — | planned |
+| 9 | 63 | Mock coding interview #4 (peer), then review the recording against the Google rubric | — | — | planned |
+| 10 | 63 | Google-style set, timed, in a Google Doc: LC-632 Smallest Range Covering Elements from K L | — | — | planned |
+| 11 | 64 | Apply with referral (IC-4 note). Then mock behavioural round #2 | — | — | planned |
+| 12 | 64 | Google-style set, timed, in a Google Doc: LC-857 Minimum Cost to Hire K Workers (Hard, DS- | — | — | planned |
+| 13 | 65 | Full mini-loop: 2 × 45-min coding + 1 × behavioural, back to back | — | — | planned |
+| 14 | 65 | Google-style set, timed, in a Google Doc: LC-301 Remove Invalid Parentheses (Hard, DS-18); | — | — | planned |
+| 15 | 66 | Mock system design #3 (peer); prepare questions for the recruiter | — | — | planned |
+| 16 | 67 | Full loop simulation #1: 3 coding + 1 design + 1 behavioural (5 × 45 min across the weeken | — | — | planned |
+| 17 | 68 | Redo every problem in weak-areas.md that is still marked red | — | — | planned |
+| 18 | 69 | Full loop simulation #2 with peers | — | — | planned |
+| 19 | 70 | Story bank rehearsal, all ten stories spoken and timed; system design flash review | — | — | planned |
+| 20 | 71 | Light: two mediums, one design walkthrough. Sleep matters more now | — | — | planned |
+| 21 | 72 | Taper: one medium a day, no new topics. Confirm onsite logistics | — | — | planned |
 
-| # | Week | Date | Type | Platform / Partner | Score (1-10) | Status |
-|---|------|------|------|---------------------|--------------|--------|
-| 1 | 15 | — | Coding | — | — | scheduled / done / skipped |
-| 2 | 16 | — | Coding | — | — | — |
-| 3 | 17 | — | Coding | — | — | — |
-| 4 | 18 | — | HLD | — | — | — |
-| 5 | 19 | — | Coding | — | — | — |
-| 6 | 20 | — | HLD | — | — | — |
-| 7 | 21 | — | Coding | — | — | — |
-| 8 | 22 | — | HLD | — | — | — |
-| 9 | 23 | — | Behavioral | — | — | — |
-| 10 | 24 | — | Coding | — | — | — |
-| 11 | 25 | — | HLD (loop) | — | — | — |
-| 12 | 26 | — | (any weak area) | — | — | — |
+## Mock notes
 
----
+For each: the problem, what went well, the one thing the interviewer would write down, the fix.
 
-## Per-Mock Detailed Log
+## Contest log
 
-### Mock #1 — Week 15
-- **Date:**
-- **Type:** Coding
-- **Platform / Partner:**
-- **Problem(s) asked:**
-- **My approach (one line):**
-- **Optimal approach (one line):**
-- **Time to working solution:**
-- **Code quality (interviewer's feedback):**
-- **Communication (interviewer's feedback):**
-- **Score (1-10):**
-- **Top 3 weaknesses surfaced:**
-  1.
-  2.
-  3.
-- **Action items (concrete, with deadline):**
-  - [ ]
-  - [ ]
-  - [ ]
-- **Going into `trackers/weak-areas.md`:** yes / no
-
----
-
-### Mock #2 — Week 16
-(same template)
-
----
-
-### Mock #3 — Week 17
-(same template)
-
----
-
-### Mock #4 — Week 18 (first HLD mock)
-(same template, HLD-specific fields:)
-- **Got through which framework stages:** FRs / NFRs / Capacity / API / DB / Arch / Scale / Trade-offs
-- **Bottleneck identified:** yes / no
-- **Trade-offs discussed:** y/n
-- **Where I stalled:**
-
----
-
-### Mock #5 — Week 19
-(same template)
-
----
-
-### Mock #6 — Week 20
-(same template)
-
----
-
-### Mock #7 — Week 21
-(same template)
-
----
-
-### Mock #8 — Week 22
-(same template)
-
----
-
-### Mock #9 — Week 23 (first behavioral)
-- **Stories asked / told:**
-- **Stories that landed well:**
-- **Stories that fell flat (and why):**
-- **LP coverage during mock:**
-- **Time per story (was I under 2 min?):**
-
----
-
-### Mock #10 — Week 24
-(coding template)
-
----
-
-### Mock #11 — Week 25 (HLD in full-loop sim)
-(HLD template + note on fatigue)
-
----
-
-### Mock #12 — Week 26
-(focus on weakest area from prior mocks)
-
----
-
-## Score Trend
-
-| Mock # | Score | Type |
-|--------|-------|------|
-| 1 | _/10 | Coding |
-| 2 | _/10 | Coding |
-| 3 | _/10 | Coding |
-| 4 | _/10 | HLD |
-| 5 | _/10 | Coding |
-| 6 | _/10 | HLD |
-| 7 | _/10 | Coding |
-| 8 | _/10 | HLD |
-| 9 | _/10 | Behavioral |
-| 10 | _/10 | Coding |
-| 11 | _/10 | HLD |
-| 12 | _/10 | (TBD) |
-
-**Trend target:** ≥7 average across last 3 mocks (mocks 10, 11, 12).
+| Date | Contest | Solved (of 4) | Rank | Time on Q2 | What cost the most time |
+|---|---|---|---|---|---|

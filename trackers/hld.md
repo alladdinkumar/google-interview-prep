@@ -1,88 +1,34 @@
-# HLD Tracker
+# System Design Tracker
 
-System design case studies progress. Updated weekly during Phase 4.
+Weeks 45–56. A case study is done when its note has all six parts:
+requirements with numbers, estimation, API, data model, high-level design, two deep dives.
 
----
+**Confidence:** 1 lost · 2 needs lookup · 3 solves with hints · 4 first try most of the time · 5 could teach it
 
-## Building Blocks (Week 18)
-
-| # | Topic | Note file | Studied | Notes written | Confidence (1-5) | Last revisited |
-|---|-------|-----------|---------|---------------|-------------------|-----------------|
-| 1 | HLD framework template | `_framework.md` | no | no | 1 | — |
-| 2 | Caching strategies | `caching.md` | no | no | 1 | — |
-| 3 | Sharding + consistent hashing | `sharding.md` | no | no | 1 | — |
-| 4 | CAP + consistency models | `cap.md` | no | no | 1 | — |
-| 5 | Message queues (Kafka/RabbitMQ/SQS) | `queues.md` | no | no | 1 | — |
-| 6 | Load balancers (L4/L7) | `load-balancers.md` | no | no | 1 | — |
-| 7 | CDN | `cdn.md` | no | no | 1 | — |
-| 8 | Rate limiting | `rate-limiting.md` | no | no | 1 | — |
-| 9 | DB replication | `db-replication.md` | no | no | 1 | — |
-| 10 | SQL vs NoSQL | `sql-vs-nosql.md` | no | no | 1 | — |
-
----
-
-## Case Studies (14 total)
-
-A case study is **done** only when all 4 layers are drawn: Capacity / API / DB / Architecture.
-
-| # | Design | Slug | Studied | Capacity | API | DB | Arch | Trade-offs | Confident (1-5) | Last revisited |
-|---|--------|------|---------|----------|-----|-----|------|-----------|------------------|-----------------|
-| 1 | TinyURL | `tinyurl.md` | no | — | — | — | — | — | 1 | — |
-| 2 | Pastebin | `pastebin.md` | no | — | — | — | — | — | 1 | — |
-| 3 | Rate Limiter (distributed) | `rate-limiter.md` | no | — | — | — | — | — | 1 | — |
-| 4 | WhatsApp / Messenger | `whatsapp.md` | no | — | — | — | — | — | 1 | — |
-| 5 | Twitter Feed | `twitter-feed.md` | no | — | — | — | — | — | 1 | — |
-| 6 | Instagram | `instagram.md` | no | — | — | — | — | — | 1 | — |
-| 7 | YouTube | `youtube.md` | no | — | — | — | — | — | 1 | — |
-| 8 | Netflix | `netflix.md` | no | — | — | — | — | — | 1 | — |
-| 9 | Distributed Cache | `distributed-cache.md` | no | — | — | — | — | — | 1 | — |
-| 10 | Typeahead Search | `typeahead.md` | no | — | — | — | — | — | 1 | — |
-| 11 | Uber | `uber.md` | no | — | — | — | — | — | 1 | — |
-| 12 | Payment System | `payment.md` | no | — | — | — | — | — | 1 | — |
-| 13 | Notification Service | `notifications.md` | no | — | — | — | — | — | 1 | — |
-| 14 | BookMyShow | `bookmyshow-hld.md` | no | — | — | — | — | — | 1 | — |
-
----
-
-## Deep-Dive Companions
-
-| # | Topic | Note file | Studied | Confident |
-|---|-------|-----------|---------|-----------|
-| 1 | WebSocket vs LongPoll vs SSE | `_websocket.md` | no | 1 |
-| 2 | HTTP/2 multiplexing | `_http2.md` | no | 1 |
-| 3 | HTTP/3 / QUIC overview | `_http3.md` | no | 1 |
-| 4 | gRPC architecture (your strength!) | `_grpc.md` | no | 3 (existing knowledge) |
-| 5 | Distributed transactions (2PC, Saga) | `_distributed-txn.md` | no | 1 |
-| 6 | Raft consensus (high-level) | `_raft.md` | no | 1 |
-| 7 | Vector clocks / Lamport ts | `_vector-clocks.md` | no | 1 |
-| 8 | DNS at scale (anycast, geo-DNS) | `_dns-scale.md` | no | 1 |
-| 9 | LSM tree vs B-tree storage | `_lsm-btree.md` | no | 1 |
-| 10 | Bloom filters | `_bloom-filter.md` | no | 1 |
-
----
-
-## Mock HLD Performance
-
-| Mock # | Date | Design asked | Got through | Bottleneck | Score (1-10) |
-|--------|------|--------------|-------------|------------|--------------|
-| #4 | — | — | — | — | — |
-| #5 | — | — | — | — | — |
-| #6 | — | — | — | — | — |
-| #7 | — | — | — | — | — |
-| #8 | — | — | — | — | — |
-| #11 | — | — | — | — | — |
-
----
-
-## Self-Assessment
-
-End of Phase 4, can I do this without prompts?
-
-- [ ] State assumptions upfront
-- [ ] Quick capacity math (back-of-envelope) in 2-3 min
-- [ ] Choose SQL vs NoSQL with explicit reason
-- [ ] Design API with realistic endpoint signatures
-- [ ] Draw a high-level architecture box-diagram
-- [ ] Identify primary bottleneck (usually DB writes or hot cache)
-- [ ] Discuss 2-3 trade-offs with the interviewer
-- [ ] Handle "10× traffic" follow-up cleanly
+| # | Topic | Week | Note complete | Done aloud in 45 min | Confidence | Last revisited |
+|---|---|---|---|---|---|---|
+| SD-1 | System design interview framework | 45 | no | no | 1 | — |
+| SD-2 | Back of the envelope estimation | 45 | no | no | 1 | — |
+| SD-3 | Networking and APIs for system design | 46 | no | no | 1 | — |
+| SD-4 | Load balancing | 46 | no | no | 1 | — |
+| SD-5 | Caching | 47 | no | no | 1 | — |
+| SD-6 | Databases | 47 | no | no | 1 | — |
+| SD-7 | Sharding and consistent hashing | 48 | no | no | 1 | — |
+| SD-8 | CAP theorem and consensus | 48 | no | no | 1 | — |
+| SD-9 | Message queues and streaming | 49 | no | no | 1 | — |
+| SD-10 | Rate limiting | 49 | no | no | 1 | — |
+| SD-11 | Google infrastructure papers | 50 | no | no | 1 | — |
+| SD-12 | Unique ID generation | 49 | no | no | 1 | — |
+| SD-13 | Design a URL shortener | 51 | no | no | 1 | — |
+| SD-14 | Design a distributed key value store | 51 | no | no | 1 | — |
+| SD-15 | Design a chat system | 52 | no | no | 1 | — |
+| SD-16 | Design a news feed | 52 | no | no | 1 | — |
+| SD-17 | Design YouTube video streaming | 53 | no | no | 1 | — |
+| SD-18 | Design search autocomplete | 53 | no | no | 1 | — |
+| SD-19 | Design a web crawler | 54 | no | no | 1 | — |
+| SD-20 | Design Google Drive file storage | 54 | no | no | 1 | — |
+| SD-21 | Design a proximity service | 55 | no | no | 1 | — |
+| SD-22 | Design a notification system | 55 | no | no | 1 | — |
+| SD-23 | Design a metrics monitoring and alerting… | 56 | no | no | 1 | — |
+| SD-24 | Design a payment system | 56 | no | no | 1 | — |
+| SD-25 | Design Google Docs collaborative editing | 56 | no | no | 1 | — |

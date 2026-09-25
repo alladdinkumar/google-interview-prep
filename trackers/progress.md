@@ -1,139 +1,92 @@
-# Master Progress Tracker
+# Progress
 
-Updated every Sunday during the weekly review.
+Filled in during the Sunday review. Dates come from the planner (Settings → Schedule).
 
----
+## By phase
 
-## Current State
+| Phase | Name | Weeks | Target h | Actual h | Sessions ticked |
+|---|---|---|---|---|---|
+| 1 | Foundations | 1–8 | 78 | __ | __ |
+| 2 | Core Patterns | 9–24 | 156 | __ | __ |
+| 3 | Dynamic Programming and Advanced DSA | 25–38 | 136 | __ | __ |
+| 4 | Object-Oriented Design | 39–44 | 58 | __ | __ |
+| 5 | System Design | 45–56 | 117 | __ | __ |
+| 6 | Google Loop Preparation | 57–66 | 98 | __ | __ |
+| 7 | Final Sprint | 67–72 | 58 | __ | __ |
 
-- **Today's date:** 2026-MM-DD (update each review)
-- **Current phase:** Phase 1 — Foundations
-- **Current week:** Week 1 of 26 (overall_week)
-- **Current phase week:** Week 1 of 4 (phase_week)
-- **Days until target:** 181
+## By week
 
----
-
-## Cumulative Hours
-
-| Phase | Target h | Actual h | Adherence % |
-|-------|----------|----------|--------------|
-| Phase 1 (Wk 1-4) | 76 | __ | __% |
-| Phase 2 (Wk 5-12) | 152 | __ | __% |
-| Phase 3 (Wk 13-17) | 95 | __ | __% |
-| Phase 4 (Wk 18-22) | 95 | __ | __% |
-| Phase 5 (Wk 23-26) | 76 | __ | __% |
-| **Total** | **494** | **__** | **__%** |
-
----
-
-## Problems Solved (cumulative)
-
-| Difficulty | Solved | Target | Progress |
-|------------|--------|--------|----------|
-| Easy | 0 | 60 | 0% |
-| Medium | 0 | 200 | 0% |
-| Hard | 0 | 30 | 0% |
-| **Total** | **0** | **290** | **0%** |
-
----
-
-## High-Level Milestones
-
-| Milestone | Target | Status |
-|-----------|--------|--------|
-| DSA fundamentals comfortable | end of Wk 4 | not yet |
-| All medium DSA patterns covered | end of Wk 12 | not yet |
-| All 8 core LLD problems coded | end of Wk 17 | not yet |
-| All 14 HLD case studies written | end of Wk 22 | not yet |
-| 10 STAR stories ready | end of Wk 23 | not yet |
-| 12 mocks completed | end of Wk 26 | 0/12 |
-| Applications submitted | from Wk 24 | 0 |
-
----
-
-## Phase Summary
-
-### Phase 1 — Foundations (Wk 1-4)
-- Started: 2026-05-18 | Ended: __
-- Hours: __ / 76 (__%)
-- Problems: __ / 60
-- Status: in progress / completed / extended
-
-### Phase 2 — DSA Patterns (Wk 5-12)
-- Started: __ | Ended: __
-- Hours: __ / 152
-- Problems: __ / 142 (cumulative phase total)
-- Status: not started
-
-### Phase 3 — Advanced DSA + LLD (Wk 13-17)
-- Started: __ | Ended: __
-- Hours: __ / 95
-- LLD problems: __ / 8
-- Mocks: __ / 3
-- Status: not started
-
-### Phase 4 — System Design (Wk 18-22)
-- Started: __ | Ended: __
-- Hours: __ / 95
-- HLD case studies: __ / 14
-- Mocks: __ / 5 (cumulative w/ Phase 3)
-- Status: not started
-
-### Phase 5 — Mocks + Behavioral (Wk 23-26)
-- Started: __ | Ended: __
-- Hours: __ / 76
-- STAR stories ready: __ / 10
-- Mocks: __ / 12 (cumulative total)
-- Applications: __
-- Status: not started
-
----
-
-## Weekly Adherence Log
-
-| Week | Target h | Actual h | % | Problems solved | Notes |
-|------|----------|----------|---|-----------------|-------|
-| 1 | 19 | __ | __% | __ | __ |
-| 2 | 19 | __ | __% | __ | __ |
-| 3 | 19 | __ | __% | __ | __ |
-| 4 | 19 | __ | __% | __ | __ |
-| 5 | 19 | __ | __% | __ | __ |
-| 6 | 19 | __ | __% | __ | __ |
-| 7 | 19 | __ | __% | __ | __ |
-| 8 | 19 | __ | __% | __ | __ |
-| 9 | 19 | __ | __% | __ | __ |
-| 10 | 19 | __ | __% | __ | __ |
-| 11 | 19 | __ | __% | __ | __ |
-| 12 | 19 | __ | __% | __ | __ |
-| 13 | 19 | __ | __% | __ | __ |
-| 14 | 19 | __ | __% | __ | __ |
-| 15 | 19 | __ | __% | __ | __ |
-| 16 | 19 | __ | __% | __ | __ |
-| 17 | 19 | __ | __% | __ | __ |
-| 18 | 19 | __ | __% | __ | __ |
-| 19 | 19 | __ | __% | __ | __ |
-| 20 | 19 | __ | __% | __ | __ |
-| 21 | 19 | __ | __% | __ | __ |
-| 22 | 19 | __ | __% | __ | __ |
-| 23 | 19 | __ | __% | __ | __ |
-| 24 | 19 | __ | __% | __ | __ |
-| 25 | 19 | __ | __% | __ | __ |
-| 26 | 19 | __ | __% | __ | __ |
-
----
-
-## Readiness Self-Assessment (update at end of each phase)
-
-| Skill area | After Phase 1 | After Phase 2 | After Phase 3 | After Phase 4 | After Phase 5 |
-|------------|--------------|---------------|---------------|---------------|---------------|
-| DSA — easy | _/10 | _/10 | _/10 | _/10 | _/10 |
-| DSA — medium | _/10 | _/10 | _/10 | _/10 | _/10 |
-| DSA — hard | _/10 | _/10 | _/10 | _/10 | _/10 |
-| HLD framework | _/10 | _/10 | _/10 | _/10 | _/10 |
-| LLD / OOD | _/10 | _/10 | _/10 | _/10 | _/10 |
-| Core subjects | _/10 | _/10 | _/10 | _/10 | _/10 |
-| Behavioral / STAR | _/10 | _/10 | _/10 | _/10 | _/10 |
-| Mock performance | n/a | n/a | _/10 | _/10 | _/10 |
-
-**Interview-ready threshold:** all rows ≥7 by end of Phase 5.
+| Week | Target h | Actual h | Sessions ticked (of 9) | Problems | Contest solved |
+|---|---|---|---|---|---|
+| 1 | 9.75 | __ | __ | __ | __ |
+| 2 | 9.75 | __ | __ | __ | __ |
+| 3 | 9.75 | __ | __ | __ | __ |
+| 4 | 9.75 | __ | __ | __ | __ |
+| 5 | 9.75 | __ | __ | __ | __ |
+| 6 | 9.75 | __ | __ | __ | __ |
+| 7 | 9.75 | __ | __ | __ | __ |
+| 8 | 9.75 | __ | __ | __ | __ |
+| 9 | 9.75 | __ | __ | __ | __ |
+| 10 | 9.75 | __ | __ | __ | __ |
+| 11 | 9.75 | __ | __ | __ | __ |
+| 12 | 9.75 | __ | __ | __ | __ |
+| 13 | 9.75 | __ | __ | __ | __ |
+| 14 | 9.75 | __ | __ | __ | __ |
+| 15 | 9.75 | __ | __ | __ | __ |
+| 16 | 9.75 | __ | __ | __ | __ |
+| 17 | 9.75 | __ | __ | __ | __ |
+| 18 | 9.75 | __ | __ | __ | __ |
+| 19 | 9.75 | __ | __ | __ | __ |
+| 20 | 9.75 | __ | __ | __ | __ |
+| 21 | 9.75 | __ | __ | __ | __ |
+| 22 | 9.75 | __ | __ | __ | __ |
+| 23 | 9.75 | __ | __ | __ | __ |
+| 24 | 9.75 | __ | __ | __ | __ |
+| 25 | 9.75 | __ | __ | __ | __ |
+| 26 | 9.75 | __ | __ | __ | __ |
+| 27 | 9.75 | __ | __ | __ | __ |
+| 28 | 9.75 | __ | __ | __ | __ |
+| 29 | 9.75 | __ | __ | __ | __ |
+| 30 | 9.75 | __ | __ | __ | __ |
+| 31 | 9.75 | __ | __ | __ | __ |
+| 32 | 9.75 | __ | __ | __ | __ |
+| 33 | 9.75 | __ | __ | __ | __ |
+| 34 | 9.75 | __ | __ | __ | __ |
+| 35 | 9.75 | __ | __ | __ | __ |
+| 36 | 9.75 | __ | __ | __ | __ |
+| 37 | 9.75 | __ | __ | __ | __ |
+| 38 | 9.75 | __ | __ | __ | __ |
+| 39 | 9.75 | __ | __ | __ | __ |
+| 40 | 9.75 | __ | __ | __ | __ |
+| 41 | 9.75 | __ | __ | __ | __ |
+| 42 | 9.75 | __ | __ | __ | __ |
+| 43 | 9.75 | __ | __ | __ | __ |
+| 44 | 9.75 | __ | __ | __ | __ |
+| 45 | 9.75 | __ | __ | __ | __ |
+| 46 | 9.75 | __ | __ | __ | __ |
+| 47 | 9.75 | __ | __ | __ | __ |
+| 48 | 9.75 | __ | __ | __ | __ |
+| 49 | 9.75 | __ | __ | __ | __ |
+| 50 | 9.75 | __ | __ | __ | __ |
+| 51 | 9.75 | __ | __ | __ | __ |
+| 52 | 9.75 | __ | __ | __ | __ |
+| 53 | 9.75 | __ | __ | __ | __ |
+| 54 | 9.75 | __ | __ | __ | __ |
+| 55 | 9.75 | __ | __ | __ | __ |
+| 56 | 9.75 | __ | __ | __ | __ |
+| 57 | 9.75 | __ | __ | __ | __ |
+| 58 | 9.75 | __ | __ | __ | __ |
+| 59 | 9.75 | __ | __ | __ | __ |
+| 60 | 9.75 | __ | __ | __ | __ |
+| 61 | 9.75 | __ | __ | __ | __ |
+| 62 | 9.75 | __ | __ | __ | __ |
+| 63 | 9.75 | __ | __ | __ | __ |
+| 64 | 9.75 | __ | __ | __ | __ |
+| 65 | 9.75 | __ | __ | __ | __ |
+| 66 | 9.75 | __ | __ | __ | __ |
+| 67 | 9.75 | __ | __ | __ | __ |
+| 68 | 9.75 | __ | __ | __ | __ |
+| 69 | 9.75 | __ | __ | __ | __ |
+| 70 | 9.75 | __ | __ | __ | __ |
+| 71 | 9.75 | __ | __ | __ | __ |
+| 72 | 9.75 | __ | __ | __ | __ |

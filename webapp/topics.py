@@ -337,11 +337,27 @@ GEMINI_URL = "https://www.google.com/search?udm=50&q={q}"
 GEMINI_APP = "https://gemini.google.com/app"
 PROMPT_URL_MAX = 1900
 
-GEMINI_HEAD = (
-    "I am preparing for the Google software engineer interview (L4, India), writing C++. "
-    "Answer as a Google interviewer and coach would: precise, terse, no encouragement, "
-    "no filler."
-)
+# Who is asking. Read from webapp/profile.json so a copy of this repo speaks for its
+# own owner (scripts/setup_own_copy.py rewrites it); these are the fallbacks.
+PROFILE_FILE = Path(__file__).resolve().parent / "profile.json"
+PROFILE_DEFAULT = {
+    "head": ("I am preparing for the Google software engineer interview, writing C++. "
+             "Answer as a Google interviewer and coach would: precise, terse, no encouragement, "
+             "no filler."),
+    "situation": "I study about 10 hours a week, so I need answers I can use in a 45-minute slot.",
+}
+
+
+def load_profile():
+    import json
+    try:
+        data = json.loads(PROFILE_FILE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        data = {}
+    return {k: str(data.get(k) or v) for k, v in PROFILE_DEFAULT.items()}
+
+
+GEMINI_HEAD = load_profile()["head"]
 
 # Per topic area: the five asks shown under each topic block.
 TOPIC_PROMPTS = {
