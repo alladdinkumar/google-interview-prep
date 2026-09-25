@@ -1,0 +1,29 @@
+name: LLD projects
+
+on:
+  push:
+    paths:
+      - 'projects/**'
+      - '.github/workflows/projects.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [01-lru-cache, 02-notification-service, 03-text-editor, 04-parking-lot, 05-splitwise, 06-ticket-booking]
+    steps:
+      - uses: actions/checkout@v7
+      # A project that does not compile fails the run. Failing tests do not: unimplemented
+      # stubs are the starting state, so the score is reported, not enforced.
+      - name: Build
+        working-directory: projects/lld/${{ matrix.project }}
+        run: make build/tests CXX=g++-13
+      - name: Test (score)
+        working-directory: projects/lld/${{ matrix.project }}
+        run: ./build/tests | tee result.txt; echo "### ${{ matrix.project }}: $(tail -1 result.txt)" >> "$GITHUB_STEP_SUMMARY"

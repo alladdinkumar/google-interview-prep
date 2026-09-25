@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google Prep Planner</title>
+<!-- The hosted page keeps a GitHub token in localStorage, so it loads no third-party
+     code and talks to nothing but the GitHub API. manifest-src is easy to forget and
+     silently blocks the home-screen install. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; manifest-src 'self'; connect-src 'self' https://api.github.com; form-action 'none'; base-uri 'none'">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1F3A5F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Google prep">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F6F9; --surface: #FFFFFF; --ink: #1B2430; --muted: #5A6677; --line: #D7DDE5;
+    --band: #1F3A5F; --band-ink: #FFFFFF; --done: #2E8540; --partial: #B7791F; --missed: #C0392B;
+    --upcoming: #E3E8EE; --upcoming-ink: #5A6677; --today: #6B46C1; --chip: #EDF1F6; --focus: #1F3A5F;
+    --skip: #9AA5B4;
+    --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --digits: "Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #11171F; --surface: #19212B; --ink: #E6EBF2; --muted: #9AA6B5; --line: #2B3645;
+      --band: #203A5C; --band-ink: #F2F5FA; --done: #3FA55A; --partial: #D99A2B; --missed: #D9534F;
+      --upcoming: #253040; --upcoming-ink: #9AA6B5; --today: #9B7BE3; --chip: #212B38; --focus: #7FA6E0;
+      --skip: #56616F; color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/1.55 var(--body); }
+  a { color: inherit; }
+  button, input, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  [hidden] { display: none !important; }
+
+  .band { background: var(--band); color: var(--band-ink); padding: 12px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; }
+  .band h1 { margin: 0; font-size: 1.05rem; }
+  .band .overall { display: flex; align-items: center; gap: 12px; margin-left: auto; font-size: .92rem; flex-wrap: wrap; }
+  .meter { width: 180px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.25); overflow: hidden; }
+  .meter > span { display: block; height: 100%; background: #fff; width: 0; transition: width .3s ease; }
+  .save-state { font-size: .85rem; opacity: .9; min-width: 9ch; }
+  .save-state.error { font-weight: 700; }
+  .band .settings { border: 1px solid rgba(255,255,255,.45); background: transparent; color: inherit; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: .88rem; }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; max-width: 1240px; margin: 0 auto; padding: 24px; align-items: start; }
+
+  .palette { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; position: sticky; top: 16px; max-height: calc(100vh - 32px); display: flex; flex-direction: column; }
+  .palette h2 { margin: 0 0 4px; font-size: 1rem; }
+  .palette .phase-name { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+  .tabs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 12px; }
+  .tabs button { border: 1px solid var(--line); background: transparent; border-radius: 6px; padding: 4px 0; font-family: var(--digits); font-size: 1.05rem; font-weight: 600; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--band); color: var(--band-ink); border-color: var(--band); }
+  .weekgrid { overflow-y: auto; padding-right: 4px; }
+  .weekrow, .dayheads { display: grid; grid-template-columns: 38px repeat(7, 1fr); gap: 4px; align-items: center; margin-bottom: 4px; }
+  .dayheads { font-size: .72rem; color: var(--muted); text-align: center; }
+  .weekrow .wk { font-family: var(--digits); color: var(--muted); }
+  .sq { aspect-ratio: 1; min-width: 0; border-radius: 5px; border: 0; cursor: pointer; font-family: var(--digits); font-size: .95rem; font-weight: 600; background: var(--upcoming); color: var(--upcoming-ink); padding: 0; }
+  .sq.done { background: var(--done); color: #fff; }
+  .sq.partial { background: var(--partial); color: #fff; }
+  .sq.missed { background: var(--missed); color: #fff; }
+  .sq.today { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--today); }
+  .sq.selected { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+  .legend span { display: flex; align-items: center; gap: 8px; }
+  .legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; flex: none; }
+
+  .dayhead { display: grid; grid-template-columns: auto 1fr; gap: 4px 24px; align-items: end; }
+  .daynum { font-family: var(--digits); font-weight: 600; font-size: clamp(3.2rem, 8vw, 5rem); line-height: .9; margin: 0; }
+  .daymeta p { margin: 0; }
+  .daymeta .date { font-size: 1.15rem; font-weight: 700; }
+  .daymeta .week { color: var(--muted); }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 8px; align-items: center; }
+  .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary { background: var(--band); color: var(--band-ink); border-color: var(--band); }
+  .btn.small { padding: 3px 10px; font-size: .85rem; }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .jump { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: .9rem; color: var(--muted); }
+  .jump input { width: 5.5em; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+  .dayprogress { color: var(--muted); font-size: .95rem; margin: 4px 0 18px; }
+
+  .notice { border-left: 4px solid var(--today); background: var(--surface); padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .notice.catchup { border-left-color: var(--missed); }
+  .notice.skip { border-left-color: var(--skip); }
+  .notice p { margin: 0; }
+  .setup { border-left: 4px solid var(--partial); background: var(--surface); padding: 12px 14px; border-radius: 0 6px 6px 0; margin: 0 0 16px; }
+  .setup p { margin: 0 0 8px; }
+
+  .sessions { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .session { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 12px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .session .when { font-size: .9rem; color: var(--muted); margin: 0 0 2px; }
+  .session .when strong { color: var(--ink); }
+  .session .focus { margin: 0 0 10px; max-width: 76ch; }
+  .session.is-done .focus { color: var(--muted); }
+  .required { margin: 0 0 10px; padding: 8px 10px; max-width: 78ch; border-left: 3px solid var(--focus); background: var(--chip); font-size: .92rem; }
+  .required strong { display: block; font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  code { font-family: var(--body); font-size: .92em; background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+
+  .tick { position: relative; width: 32px; height: 32px; margin-top: 2px; }
+  .tick input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .tick span { position: absolute; inset: 0; border: 2px solid var(--muted); border-radius: 50%; display: grid; place-items: center; background: var(--surface); pointer-events: none; }
+  .tick input:checked + span { background: var(--done); border-color: var(--done); }
+  .tick input:checked + span::after { content: ""; width: 12px; height: 7px; border: 3px solid #fff; border-top: 0; border-right: 0; transform: translateY(-2px) rotate(-45deg); }
+  .tick input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .links { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 14px; background: var(--chip); border: 1px solid transparent; font-size: .88rem; text-decoration: none; cursor: pointer; line-height: 1.35; text-align: left; }
+  .chip:hover { border-color: var(--line); }
+  .chip svg { width: 13px; height: 13px; flex: none; }
+  .chip.video svg { color: var(--missed); }
+  .chip.practice svg { color: var(--done); }
+  .chip.material svg, .chip.tool svg { color: var(--band); }
+  .chip.file, .chip.gem { background: transparent; border-color: var(--line); }
+  .chip.file svg { color: var(--today); }
+  .chip.gem svg { color: #1A73E8; }
+  .chip .diff { font-size: .74rem; color: var(--muted); }
+  .links.rows { display: block; }
+  .links.rows .chip { display: flex; width: 100%; margin-bottom: 6px; border-radius: 8px; padding: 8px 10px; white-space: normal; align-items: flex-start; }
+  .links.rows .chip svg { margin-top: 3px; }
+
+  .problem { margin: 10px 0 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 10px; }
+  .problem h4 { margin: 0 0 8px; font-size: .95rem; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+  .problem h4 .pid { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; color: var(--muted); }
+  .badge { font-size: .74rem; padding: 1px 8px; border-radius: 10px; background: var(--chip); color: var(--muted); }
+  .badge.Easy { color: var(--done); } .badge.Medium { color: var(--partial); } .badge.Hard { color: var(--missed); }
+  .problem .grp { margin-top: 8px; }
+
+  .topics { margin: 10px 0 0; display: flex; flex-direction: column; gap: 6px; }
+  .topic { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  .topic > summary { cursor: pointer; padding: 8px 10px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; font-size: .92rem; list-style: none; }
+  .topic > summary::-webkit-details-marker { display: none; }
+  .topic > summary::before { content: "\25B8"; color: var(--muted); font-size: .8rem; }
+  .topic[open] > summary::before { content: "\25BE"; }
+  .tid { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; color: var(--muted); }
+  .tsum { color: var(--muted); font-size: .8rem; margin-left: auto; }
+  .topicbody { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 10px; }
+  .tfull { margin: 0; font-size: .86rem; color: var(--muted); max-width: 78ch; }
+  h5 { margin: 0 0 4px; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+  .qs > summary { cursor: pointer; font-size: .86rem; color: var(--ink); padding: 4px 0; }
+  .qs ol { margin: 6px 0 0; padding-left: 22px; }
+  .qs li { margin: 0 0 8px; font-size: .9rem; }
+  .qs li a { margin-left: 6px; }
+
+  .section-title { font-size: 1.05rem; margin: 32px 0 10px; }
+  .weekstrip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .weekstrip button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 8px 4px; cursor: pointer; text-align: center; }
+  .weekstrip button[aria-current="date"] { border: 2px solid var(--ink); padding: 7px 3px; }
+  .weekstrip .d { display: block; font-size: .78rem; color: var(--muted); }
+  .weekstrip .n { display: block; font-family: var(--digits); font-weight: 600; font-size: 1.2rem; line-height: 1.1; }
+  .weekstrip .bar { display: block; height: 4px; border-radius: 2px; background: var(--upcoming); margin: 6px 6px 0; overflow: hidden; }
+  .weekstrip .bar > i { display: block; height: 100%; background: var(--done); }
+  .weekmeta { color: var(--muted); font-size: .9rem; margin: 8px 0 0; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 6px; font-size: .92rem; max-width: calc(100vw - 32px); z-index: 30; display: flex; gap: 12px; align-items: center; }
+  .toast button { background: transparent; border: 1px solid currentColor; color: inherit; border-radius: 4px; padding: 2px 10px; cursor: pointer; }
+  .modal-backdrop { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 20px; background: rgba(12,19,29,.62); }
+  .editor { width: min(960px, 100%); max-height: calc(100vh - 40px); display: grid; grid-template-rows: auto minmax(260px, 1fr) auto; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .editor-head, .editor-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .editor-head h2 { margin: 0; font-size: 1.05rem; }
+  .editor-path { margin: 0; color: var(--muted); font-size: .85rem; }
+  .editor-head .btn { margin-left: auto; }
+  .editor textarea { min-height: 260px; width: 100%; resize: vertical; padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); font-family: ui-monospace, Consolas, monospace; font-size: .9rem; line-height: 1.45; }
+  .editor-actions p { margin: 0; color: var(--muted); font-size: .88rem; flex: 1; }
+  .panel { width: min(560px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; padding: 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .panel h2 { margin: 0 0 4px; font-size: 1.05rem; }
+  .panel h3 { margin: 18px 0 6px; font-size: .95rem; padding-top: 14px; border-top: 1px solid var(--line); }
+  .panel .sub { margin: 0 0 8px; color: var(--muted); font-size: .88rem; }
+  .panel label { display: block; font-size: .88rem; margin-bottom: 6px; }
+  .panel input { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); }
+  .panel input[type=password] { width: 100%; font-family: ui-monospace, Consolas, monospace; }
+  .panel .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .panel .state { margin: 10px 0 0; font-size: .88rem; }
+  .panel .state.error { color: var(--missed); font-weight: 700; }
+  .skiplist { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .skiplist li { display: flex; gap: 6px; align-items: center; background: var(--chip); border-radius: 14px; padding: 2px 4px 2px 10px; font-size: .86rem; }
+  .palette-toggle { display: none; }
+  .loading, .fatal { max-width: 640px; margin: 64px auto; padding: 0 24px; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+    .palette { position: static; max-height: none; order: 2; }
+    .band .overall { margin-left: 0; }
+    .jump { margin-left: 0; }
+  }
+  /* Phone: the whole reason this is hosted. */
+  @media (max-width: 620px) {
+    body { font-size: 15px; }
+    .band { padding: 10px 16px; gap: 8px 14px; }
+    .band .overall { width: 100%; gap: 8px; }
+    .meter { flex: 1; width: auto; }
+    .layout { padding: 12px 16px 32px; gap: 18px; }
+    .dayhead { position: sticky; top: 0; z-index: 5; background: var(--paper); padding: 8px 0 6px; margin: -8px 0 0; gap: 0 14px; box-shadow: 0 6px 12px -10px rgba(0,0,0,.7); }
+    .daynum { font-size: 2.5rem; }
+    .daymeta .date { font-size: 1rem; }
+    .daymeta .week { font-size: .85rem; }
+    .controls .btn { flex: 1 1 auto; min-height: 44px; }
+    .controls .btn.primary { flex-basis: 100%; }
+    .jump { flex-basis: 100%; }
+    .session { grid-template-columns: 48px minmax(0, 1fr); gap: 4px 10px; }
+    .tick { width: 40px; height: 40px; }
+    .chip { padding: 8px 12px; font-size: .9rem; }
+    .tsum { flex-basis: 100%; margin-left: 0; }
+    .palette-toggle { display: block; width: 100%; min-height: 44px; margin-bottom: 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; cursor: pointer; }
+    .palette.collapsed > *:not(.palette-toggle) { display: none; }
+    .modal-backdrop { padding: 0; }
+    .editor { width: 100%; height: 100dvh; max-height: none; border-radius: 0; border: 0; }
+    .editor textarea { font-size: 16px; }
+    .panel { border-radius: 0; height: 100dvh; max-height: none; }
+    .toast { bottom: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="band">
+  <h1>Google interview prep</h1>
+  <div class="overall" aria-live="polite">
+    <span id="overallText">Loading plan…</span>
+    <div class="meter" aria-hidden="true"><span id="overallBar"></span></div>
+    <span class="save-state" id="saveState"></span>
+    <button class="settings" id="settingsBtn" type="button">Settings</button>
+  </div>
+</header>
+
+<p class="loading" id="loading">Loading your plan…</p>
+<div class="fatal" id="fatal" hidden></div>
+
+<div class="layout" id="app" hidden>
+  <main>
+    <div class="dayhead">
+      <p class="daynum" id="dayNum">Day 1</p>
+      <div class="daymeta"><p class="date" id="dayDate"></p><p class="week" id="dayWeek"></p></div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="prevBtn" type="button">Previous day</button>
+      <button class="btn" id="todayBtn" type="button">Today</button>
+      <button class="btn" id="nextBtn" type="button">Next day</button>
+      <button class="btn" id="logBtn" type="button">Edit daily log</button>
+      <button class="btn" id="skipBtn" type="button" title="Move this day and everything after it one day later">Skip this day</button>
+      <button class="btn primary" id="progressBtn" type="button">Save daily progress</button>
+      <label class="jump">Go to day <input id="jumpInput" type="number" min="1" inputmode="numeric"></label>
+    </div>
+    <p class="dayprogress" id="dayProgress"></p>
+    <div class="setup" id="setupBanner" hidden>
+      <p><strong>Read-only.</strong> Add a GitHub token to tick sessions, edit notes and change the schedule from this device.</p>
+      <p><button class="btn primary" id="setupBtn" type="button">Add token</button></p>
+    </div>
+    <div id="notices"></div>
+    <ul class="sessions" id="sessions"></ul>
+
+    <h3 class="section-title" id="weekTitle">This week</h3>
+    <div class="weekstrip" id="weekStrip"></div>
+    <p class="weekmeta" id="weekMeta"></p>
+    <h3 class="section-title">Every day</h3>
+    <div class="links" id="commonLinks"></div>
+  </main>
+
+  <aside class="palette" aria-label="Day palette">
+    <button class="palette-toggle" id="paletteToggle" type="button" aria-expanded="true">Day palette</button>
+    <h2 id="paletteTitle">Phase 1</h2>
+    <p class="phase-name" id="phaseName"></p>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="dayheads" aria-hidden="true"><span></span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+    <div class="weekgrid" id="weekGrid"></div>
+    <div class="legend" id="legend"></div>
+  </aside>
+</div>
+
+<div class="toast" id="toast" role="status" hidden><span id="toastText"></span><button type="button" id="toastAction" hidden></button></div>
+
+<div class="modal-backdrop" id="settingsModal" hidden>
+  <section class="panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <h2 id="settingsTitle">Settings</h2>
+
+    <h3>Schedule</h3>
+    <p class="sub" id="scheduleSummary"></p>
+    <label for="startInput">Plan start date (Day 1)</label>
+    <div class="row"><input id="startInput" type="date"><button class="btn" id="startSave" type="button">Set start date</button></div>
+    <label for="skipInput" style="margin-top:12px">Skip a date — nothing is planned that day, and the rest of the plan moves one day later</label>
+    <div class="row"><input id="skipInput" type="date"><button class="btn" id="skipSave" type="button">Skip this date</button></div>
+    <ul class="skiplist" id="skipList"></ul>
+    <p class="state" id="scheduleState"></p>
+
+    <div id="syncSection">
+      <h3>Sync with GitHub</h3>
+      <p class="sub" id="settingsRepo"></p>
+      <label for="tokenInput">Fine-grained personal access token</label>
+      <input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_...">
+      <div class="row">
+        <button class="btn primary" id="tokenSave" type="button">Save token</button>
+        <button class="btn" id="tokenClear" type="button">Remove from this device</button>
+      </div>
+      <p class="state" id="settingsState"></p>
+      <p class="sub">Stored in this browser only, sent only to api.github.com. Create it at github.com → Settings → Developer settings → Fine-grained tokens: <strong>only this repository</strong>, permission <strong>Contents: Read and write</strong>, nothing else.</p>
+    </div>
+    <div class="row"><button class="btn" id="settingsClose" type="button">Close</button></div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="editorModal" hidden>
+  <section class="editor" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+    <div class="editor-head">
+      <div><h2 id="editorTitle">Edit Markdown</h2><p class="editor-path" id="editorPath"></p></div>
+      <button class="btn" id="editorClose" type="button">Close</button>
+    </div>
+    <textarea id="editorText" spellcheck="false" aria-label="Markdown editor"></textarea>
+    <div class="editor-actions">
+      <p id="editorState">Changes stay here until you save.</p>
+      <button class="btn primary" id="editorSave" type="button">Save</button>
+    </div>
+  </section>
+</div>
+
+<script src="lib/templates.js"></script>
+<script src="lib/backend-local.js"></script>
+<script src="lib/backend-github.js"></script>
+<script src="lib/backend.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const T = window.PrepTemplates;
+  const WEEKDAY_LONG = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday" };
+  const ICONS = {
+    video: '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg>',
+    practice: '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2.5 8.5l3.5 3.5 7.5-8"/></svg>',
+    material: '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M4 1.8h5.5L13 5.3v8.9H4z M9.3 1.8v3.7H13"/></svg>',
+    file: '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M3 13l1-3.5L11 2.5l2.5 2.5-7 7z"/></svg>',
+    gem: '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1.5l1.6 4.4 4.4 1.6-4.4 1.6L8 13.5 6.4 9.1 2 7.5l4.4-1.6z"/></svg>',
+  };
+  ICONS.tool = ICONS.material;
+
+  const state = { plan: null, done: {}, sched: null, index: 0, tab: 1 };
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  const todayIso = () => T.isoOf(new Date());
+  const fmtDate = (iso) => T.parseIso(iso).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const fmtShort = (iso) => T.parseIso(iso).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+  const dateOfDay = (day) => T.dateOf(day.dayNumber, state.sched);
+
+  let toastTimer;
+  function toast(msg, action) {
+    $("toastText").textContent = msg;
+    const b = $("toastAction");
+    b.hidden = !action;
+    if (action) { b.textContent = action.label; b.onclick = () => { $("toast").hidden = true; action.run(); }; }
+    $("toast").hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { $("toast").hidden = true; }, action ? 8000 : 3500);
+  }
+
+  let backend = null;
+  const canWrite = () => backend && backend.canWrite();
+
+  // ---- status -----------------------------------------------------------
+  const dayStats = (day) => ({ total: day.tasks.length, done: day.tasks.filter((t) => state.done[t.id]).length });
+  function dayStatus(day) {
+    const { total, done } = dayStats(day);
+    if (total && done === total) return "done";
+    if (done) return "partial";
+    return dateOfDay(day) < todayIso() ? "missed" : "upcoming";
+  }
+  function currentIndex() {
+    const n = T.dayOf(todayIso(), state.sched);
+    const days = state.plan.days;
+    if (n === null) {   // today is skipped: show the next plan day
+      const next = days.findIndex((d) => dateOfDay(d) > todayIso());
+      return next < 0 ? days.length - 1 : next;
+    }
+    return Math.min(Math.max(n, 1), days.length) - 1;
+  }
+
+  // ---- links ------------------------------------------------------------
+  function chip(l) {
+    if (l.kind === "text") return `<span class="chip">${esc(l.label)}</span>`;
+    if (l.kind === "file") return `<button type="button" class="chip file" data-open="${esc(l.path)}" title="Edit ${esc(l.path)}">${ICONS.file}${esc(l.label)}</button>`;
+    return `<a class="chip ${l.kind}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${ICONS[l.kind] || ""}${esc(l.label)}</a>`;
+  }
+  function problemChip(key) {
+    const p = state.plan.problems[key];
+    if (!p) return "";
+    const url = p.premium ? p.alt : p.url;
+    const where = p.premium ? " — free on LintCode" : "";
+    return `<a class="chip practice" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${ICONS.practice}${esc(key)} ${esc(p.title)}<span class="diff">${esc(p.difficulty)}${where}</span></a>`;
+  }
+
+  // ---- Gemini: every prompt carries the full context ---------------------
+  // "Explain sliding window" gets a textbook answer. The same question from someone on
+  // day 40 of 504, doing LC-424 at lunch after Saturday's lecture, gets a useful one.
+  function contextLines(day, task, topic, problem) {
+    const P = state.plan;
+    const phase = P.phases.find((p) => p.number === day.phase);
+    const week = phase.weeks.find((w) => w.number === day.week);
+    const L = [P.prompts.head, ""];
+    L.push(`Where I am: plan day ${day.dayNumber} of ${P.days.length}, week ${day.week} of ${P.totalWeeks} ("${week.title}"), phase ${phase.number} (${phase.title}). Date ${dateOfDay(day)}. I study about 10 hours a week alongside GATE exam preparation, so I need answers I can use in a 45-minute slot.`);
+    if (topic) L.push(`Topic ${topic.id} (${topic.areaName}): ${topic.name}.`);
+    if (problem) {
+      const t = P.topics[problem.topic];
+      L.push(`Problem: ${problem.key} ${problem.title} (${problem.difficulty}) - LeetCode ${problem.url}` +
+        (t ? `. It belongs to ${t.id} ${t.short}.` : ".") + (problem.premium ? ` It is Premium on LeetCode; I practise it on LintCode (${problem.alt}).` : ""));
+    }
+    if (task) {
+      L.push(`This session (${task.slot}, ${task.time}): ${task.focus.replace(/`/g, "")}`);
+      if (task.outputText) L.push(`What I must record from it: ${task.outputText.replace(/`/g, "")}`);
+      const others = (pred) => day.tasks.filter((t) => t.id !== task.id && pred(t)).map((t) => `${t.slot}: ${t.focus.replace(/`/g, "")}`).join(" | ");
+      const doneToday = others((t) => state.done[t.id]);
+      const todo = others((t) => !state.done[t.id]);
+      if (doneToday) L.push(`Already done today: ${doneToday}`);
+      if (todo) L.push(`Still to do today: ${todo}`);
+    }
+    return L;
+  }
+  // Fit the URL: drop optional lines first, never the ask or the topic.
+  function fitPrompt(lines, ask) {
+    const max = state.plan.prompts.max;
+    const optional = [/^Still to do today:/, /^Already done today:/, /^What I must record/, /^This session/];
+    let ls = lines.slice();
+    let text = `${ls.join("\n")}\n\n${ask}`;
+    for (const re of optional) {
+      if (text.length <= max) break;
+      ls = ls.filter((l) => !re.test(l));
+      text = `${ls.join("\n")}\n\n${ask}`;
+    }
+    return text.length > max ? text.slice(0, max - 1) + "…" : text;
+  }
+  function fullPrompt(lines, ask) { return `${lines.join("\n")}\n\n${ask}`; }
+  const PROMPTS = new Map();   // id -> { full, url }
+  let promptSeq = 0;
+  function gemChip(label, lines, ask, target) {
+    const id = `p${++promptSeq}`;
+    const P = state.plan.prompts;
+    const url = target === "app" ? P.app : P.url.replace("{q}", encodeURIComponent(fitPrompt(lines, ask)));
+    PROMPTS.set(id, { full: fullPrompt(lines, ask), target });
+    const title = target === "app" ? "Copies the full prompt and opens Gemini — paste it there (Canvas lives in the Gemini app)" : "Opens Google AI Mode (Gemini) already answering, with today's context; the full prompt is also copied";
+    return `<a class="chip gem" href="${esc(url)}" target="_blank" rel="noopener noreferrer" data-prompt="${id}" title="${esc(title)}">${ICONS.gem}${esc(label)}</a>`;
+  }
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:-1000px;opacity:0";
+      document.body.appendChild(ta); ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch { ok = false; }
+      ta.remove();
+      return ok;
+    }
+  }
+
+  // ---- rendering --------------------------------------------------------
+  function renderProblem(key, task, day) {
+    const p = state.plan.problems[key];
+    if (!p) return "";
+    const pLabel = `${p.key} ${p.title} (${p.difficulty})`;
+    const lines = contextLines(day, task, null, p);
+    const solve = p.premium
+      ? `<a class="chip practice" href="${esc(p.alt)}" target="_blank" rel="noopener noreferrer">${ICONS.practice}Solve free on LintCode</a><a class="chip" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">LeetCode (Premium)</a>`
+      : `<a class="chip practice" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${ICONS.practice}Solve on LeetCode</a>`;
+    const vids = (p.videos || []).map(chip).join("");
+    const gems = state.plan.prompts.problem.map((g) => gemChip(g.label, lines, g.text.split("{problem}").join(pLabel), g.target)).join("");
+    return `<div class="problem">
+      <h4><span class="pid">${esc(p.key)}</span>${esc(p.title)}<span class="badge ${esc(p.difficulty)}">${esc(p.difficulty)}</span>${p.premium ? '<span class="badge">Premium on LeetCode</span>' : ""}</h4>
+      <div class="links">${solve}</div>
+      ${vids ? `<div class="grp"><h5>Solution videos — watch after an honest attempt</h5><div class="links rows">${vids}</div></div>` : ""}
+      <div class="grp"><h5>Ask Gemini about this problem</h5><div class="links">${gems}</div></div>
+    </div>`;
+  }
+
+  function renderTopic(tid, task, day, open) {
+    const topic = state.plan.topics[tid];
+    if (!topic) return "";
+    const cut = (task.deal || {})[tid] || { lidx: [], practice: [], rewatch: false };
+    const lectures = cut.lidx.map((i) => topic.lectures[i]).filter(Boolean);
+    const lines = contextLines(day, task, topic, null);
+    const practice = cut.practice.map(problemChip).join("") + topic.practiceLinks.map(chip).join("") + topic.tagLinks.map(chip).join("");
+    const reading = topic.reading.map(chip).join("");
+    const letters = topic.newsletters.map(chip).join("");
+    const prompts = state.plan.prompts.topic[topic.area] || [];
+    const gems = prompts.map((g) => gemChip(g.label, lines, g.text)).join("");
+    const notes = topic.notes ? chip({ label: topic.notes.split("/").pop(), path: topic.notes, kind: "file" }) : "";
+    const qs = topic.questions.map((q) => `<li>${esc(q)} ${gemChip("Answer", lines, state.plan.prompts.question.split("{question}").join(q))}</li>`).join("");
+    const summary = `${lectures.length} videos${cut.rewatch ? " (rewatch)" : ""} · ${cut.practice.length + topic.practiceLinks.length} practice · ${topic.questions.length} questions`;
+    return `<details class="topic"${open ? " open" : ""}>
+      <summary><span class="tid">${esc(tid)}</span>${esc(topic.short)}<span class="tsum">${summary}</span></summary>
+      <div class="topicbody">
+        ${topic.name !== topic.short ? `<p class="tfull">${esc(topic.name)}</p>` : ""}
+        ${lectures.length ? `<div><h5>Watch — ${lectures.length} ${cut.rewatch ? "lectures (seen before on this topic; rewatch the one that did not land)" : "lectures"}</h5><div class="links rows">${lectures.map(chip).join("")}</div></div>`
+          : `<div><h5>Watch</h5><div class="links">${chip(topic.search)}</div></div>`}
+        ${practice ? `<div><h5>Practice</h5><div class="links">${practice}</div></div>` : ""}
+        ${reading ? `<div><h5>Read</h5><div class="links">${reading}</div></div>` : ""}
+        ${letters ? `<div><h5>Newsletter notes</h5><div class="links rows">${letters}</div></div>` : ""}
+        ${qs ? `<details class="qs"><summary><strong>${topic.questions.length} interview questions</strong> — each opens Gemini with a structured answer</summary><ol>${qs}</ol></details>` : ""}
+        <div><h5>Ask Gemini${notes ? " · your notes" : ""}</h5><div class="links">${gems}${notes}</div></div>
+      </div>
+    </details>`;
+  }
+
+  function renderOverall() {
+    let total = 0, done = 0;
+    for (const d of state.plan.days) { const s = dayStats(d); total += s.total; done += s.done; }
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    $("overallText").textContent = `${done} of ${total} sessions (${pct}%)`;
+    $("overallBar").style.width = pct + "%";
+  }
+
+  function renderDay() {
+    PROMPTS.clear();
+    const P = state.plan, days = P.days, day = days[state.index];
+    const phase = P.phases.find((p) => p.number === day.phase);
+    const week = phase.weeks.find((w) => w.number === day.week);
+    const date = dateOfDay(day);
+    const { total, done } = dayStats(day);
+    $("dayNum").textContent = `Day ${day.dayNumber}`;
+    $("dayDate").textContent = fmtDate(date);
+    $("dayWeek").textContent = `Week ${day.week} of ${P.totalWeeks} — ${week.title}. Phase ${phase.number}: ${phase.title}.`;
+    $("dayProgress").textContent = `${done} of ${total} sessions done · planned as ${WEEKDAY_LONG[day.weekday]}${WEEKDAY_LONG[day.weekday] !== fmtDate(date).split(",")[0] ? " (moved by skipped days)" : ""}.`;
+    $("prevBtn").disabled = state.index === 0;
+    $("nextBtn").disabled = state.index === days.length - 1;
+    $("skipBtn").disabled = !canWrite();
+    $("jumpInput").max = days.length;
+    $("jumpInput").value = day.dayNumber;
+    document.title = `Day ${day.dayNumber} — Google Prep`;
+    try { history.replaceState(null, "", `#day-${day.dayNumber}`); } catch { /* file:// */ }
+
+    const notices = [];
+    const t = todayIso();
+    if (t < state.sched.start) notices.push(`<div class="notice"><p>The plan starts ${fmtDate(state.sched.start)}. Change it in Settings → Schedule.</p></div>`);
+    if (state.sched.skips.includes(t)) notices.push(`<div class="notice skip"><p>Today is a skipped day — nothing is planned. This is the next plan day.</p></div>`);
+    const missed = days.filter((d) => dateOfDay(d) < t).flatMap((d) => d.tasks.filter((x) => !state.done[x.id]).map(() => d));
+    if (missed.length) {
+      notices.push(`<div class="notice catchup"><p>${missed.length} unfinished ${missed.length === 1 ? "session" : "sessions"} on earlier days. Do not double up: either catch up one, or skip the day and let the plan move.</p><button type="button" class="btn small" data-goto="${missed[0].dayNumber}">Go to day ${missed[0].dayNumber}</button></div>`);
+    }
+    $("notices").innerHTML = notices.join("");
+
+    let firstTopic = true;
+    $("sessions").innerHTML = day.tasks.map((task) => {
+      const checked = !!state.done[task.id];
+      const links = [...task.links, ...task.outputs].map(chip).join("");
+      const probs = task.problems.map((k) => renderProblem(k, task, day)).join("");
+      const topics = task.topics.map((tid) => { const h = renderTopic(tid, task, day, firstTopic); firstTopic = false; return h; }).join("");
+      return `<li class="session${checked ? " is-done" : ""}">
+        <label class="tick"><input type="checkbox" data-task="${task.id}" ${checked ? "checked" : ""} ${canWrite() ? "" : "disabled"} aria-label="Mark ${esc(task.slot)} done"><span></span></label>
+        <div>
+          <p class="when"><strong>${esc(task.slot)}</strong> ${esc(task.time)}</p>
+          <p class="focus">${md(task.focus)}</p>
+          ${task.outputText ? `<div class="required"><strong>Record</strong>${md(task.outputText)}</div>` : ""}
+          ${links ? `<div class="links">${links}</div>` : ""}
+          ${probs}
+          ${topics ? `<div class="topics">${topics}</div>` : ""}
+        </div>
+      </li>`;
+    }).join("");
+
+    const weekDays = days.filter((d) => d.week === day.week);
+    $("weekTitle").textContent = `Week ${day.week}`;
+    $("weekStrip").innerHTML = weekDays.map((d) => {
+      const s = dayStats(d);
+      return `<button type="button" data-goto="${d.dayNumber}" ${d.dayNumber === day.dayNumber ? 'aria-current="date"' : ""} aria-label="Day ${d.dayNumber}, ${fmtShort(dateOfDay(d))}, ${s.done} of ${s.total} done">
+        <span class="d">${esc(fmtShort(dateOfDay(d)))}</span><span class="n">${d.dayNumber}</span><span class="bar"><i style="width:${s.total ? (s.done / s.total) * 100 : 0}%"></i></span></button>`;
+    }).join("");
+    const wk = weekDays.reduce((a, d) => { const s = dayStats(d); return [a[0] + s.done, a[1] + s.total]; }, [0, 0]);
+    $("weekMeta").textContent = `${wk[0]} of ${wk[1]} sessions done this week. ${week.meta.replace(/\*\*/g, "").replace(/\s\|\s/g, " · ")}`;
+    $("commonLinks").innerHTML = P.common.map(chip).join("") + chip({ label: "dsa.md", path: "trackers/dsa.md", kind: "file" }) + chip({ label: "weak-areas.md", path: "trackers/weak-areas.md", kind: "file" }) + chip({ label: "mocks.md", path: "trackers/mocks.md", kind: "file" });
+
+    if (state.tab !== day.phase) state.tab = day.phase;
+    renderPalette();
+  }
+
+  function renderPalette() {
+    const P = state.plan, sel = P.days[state.index];
+    const phase = P.phases.find((p) => p.number === state.tab);
+    $("paletteTitle").textContent = `Phase ${phase.number}`;
+    $("phaseName").textContent = `${phase.title}, weeks ${phase.weeks[0].number}–${phase.weeks[phase.weeks.length - 1].number}`;
+    $("tabs").innerHTML = P.phases.map((p) => `<button type="button" role="tab" data-tab="${p.number}" aria-selected="${p.number === state.tab}" title="Phase ${p.number}: ${esc(p.title)}">${p.number}</button>`).join("");
+    const t = todayIso(), counts = { done: 0, partial: 0, missed: 0, upcoming: 0 };
+    $("weekGrid").innerHTML = phase.weeks.map((w) => {
+      const cells = P.days.filter((d) => d.week === w.number).map((d) => {
+        const st = dayStatus(d); counts[st]++;
+        const date = dateOfDay(d);
+        const cls = ["sq", st, date === t ? "today" : "", d.dayNumber === sel.dayNumber ? "selected" : ""].join(" ").trim();
+        return `<button type="button" class="${cls}" data-goto="${d.dayNumber}" aria-label="Day ${d.dayNumber}, ${esc(fmtShort(date))}, ${st}">${d.dayNumber}</button>`;
+      }).join("");
+      return `<div class="weekrow"><span class="wk" title="${esc(w.title)}">W${w.number}</span>${cells}</div>`;
+    }).join("");
+    $("legend").innerHTML = [["done", "Completed"], ["partial", "Partly done"], ["missed", "Missed"], ["upcoming", "Upcoming"]]
+      .map(([k, l]) => `<span><i style="background:var(--${k})"></i>${counts[k]} ${l.toLowerCase()}</span>`).join("")
+      + `<span><i style="box-shadow:inset 0 0 0 2px var(--today)"></i>Today</span><span>${state.sched.skips.length} skipped days</span>`;
+    const grid = $("weekGrid"), s = grid.querySelector(".selected");
+    if (s && grid.scrollHeight > grid.clientHeight) {
+      const g = grid.getBoundingClientRect(), r = s.getBoundingClientRect();
+      grid.scrollTop += r.top - g.top - grid.clientHeight / 2;
+    }
+  }
+
+  function go(n) { state.index = Math.min(Math.max(1, n), state.plan.days.length) - 1; renderDay(); }
+
+  // ---- ticking ----------------------------------------------------------
+  let pending = 0;
+  function setSave(text, error) { $("saveState").textContent = text; $("saveState").classList.toggle("error", !!error); }
+  async function toggleTask(id, done) {
+    const prev = state.done[id];
+    if (done) state.done[id] = new Date().toISOString(); else delete state.done[id];
+    renderOverall(); renderDay();
+    pending++; setSave("Saving…");
+    try {
+      const res = await backend.setTask(id, done);
+      state.done = res.done;
+      if (--pending === 0 && backend.kind === "local") setSave("Saved");
+      const day = state.plan.days[state.index], st = dayStats(day);
+      if (st.total && st.done === st.total) saveDailyProgress(true);
+    } catch (err) {
+      pending--;
+      if (prev) state.done[id] = prev; else delete state.done[id];
+      renderOverall(); renderDay();
+      setSave("Not saved", true);
+      toast(`Couldn't save: ${err.message}`);
+    }
+  }
+
+  // ---- schedule (admin) --------------------------------------------------
+  function renderSchedule() {
+    const s = state.sched, last = T.dateOf(state.plan.days.length, s);
+    $("scheduleSummary").textContent = `Day 1 is ${fmtDate(s.start)}. With ${s.skips.length} skipped ${s.skips.length === 1 ? "day" : "days"}, day ${state.plan.days.length} (the last) falls on ${fmtDate(last)}.`;
+    $("startInput").value = s.start;
+    if (!$("skipInput").value) $("skipInput").value = todayIso();
+    $("skipList").innerHTML = s.skips.length
+      ? s.skips.map((d) => `<li>${esc(fmtShort(d))} ${d.slice(0, 4)}<button type="button" class="btn small" data-unskip="${d}" ${canWrite() ? "" : "disabled"}>Undo</button></li>`).join("")
+      : `<li>No skipped days.</li>`;
+    ["startSave", "skipSave"].forEach((id) => { $(id).disabled = !canWrite(); });
+  }
+  async function changeSchedule(mutate, message, undo) {
+    $("scheduleState").textContent = "Saving…";
+    $("scheduleState").classList.remove("error");
+    const keepDay = state.plan.days[state.index].dayNumber;
+    try {
+      state.sched = await backend.updateSchedule(mutate);
+      $("scheduleState").textContent = message;
+      renderSchedule(); renderOverall(); go(keepDay);
+      toast(message, undo ? { label: "Undo", run: () => changeSchedule(undo, "Undone.") } : null);
+    } catch (err) {
+      $("scheduleState").textContent = `Not saved: ${err.message}`;
+      $("scheduleState").classList.add("error");
+      toast(`Schedule not saved: ${err.message}`);
+    }
+  }
+  const skipDate = (d) => changeSchedule(
+    (s) => ({ ...s, skips: [...s.skips, d] }),
+    `Skipped ${fmtShort(d)}. Everything after it moved one day later.`,
+    (s) => ({ ...s, skips: s.skips.filter((x) => x !== d) }));
+
+  // ---- settings, editor, logs --------------------------------------------
+  function refreshAccess() {
+    const hosted = backend.kind === "github";
+    $("syncSection").hidden = !hosted;
+    $("setupBanner").hidden = !(hosted && backend.needsSetup());
+    if (hosted) {
+      const q = backend.offlineCount();
+      $("settingsRepo").textContent = backend.needsSetup() ? `${backend.describe()} — read-only until you add a token.` : `Saving to ${backend.describe()}${q ? `, ${q} change${q > 1 ? "s" : ""} waiting` : ""}.`;
+    }
+  }
+  function openSettings() { refreshAccess(); renderSchedule(); $("settingsState").textContent = ""; $("tokenInput").value = ""; $("settingsModal").hidden = false; }
+  async function saveToken() {
+    $("tokenSave").disabled = true;
+    $("settingsState").textContent = "Checking the token…";
+    try {
+      await backend.setToken($("tokenInput").value);
+      $("tokenInput").value = "";
+      $("settingsState").textContent = "Token saved. This device can now write to the repo.";
+      refreshAccess(); renderSchedule(); renderDay();
+    } catch (err) { $("settingsState").textContent = err.message; }
+    finally { $("tokenSave").disabled = false; }
+  }
+  let editorPath = "";
+  function showEditor(path, content, created) {
+    editorPath = path;
+    $("editorTitle").textContent = path.startsWith("daily-logs/") ? "Daily log" : "Edit Markdown";
+    $("editorPath").textContent = path;
+    $("editorText").value = content;
+    $("editorState").textContent = created ? "Created from its template — not saved until you press Save." : "Changes stay here until you save.";
+    $("editorSave").disabled = !canWrite();
+    $("editorModal").hidden = false;
+    $("editorText").focus();
+  }
+  async function openFile(path) { try { const d = await backend.readFile(path); showEditor(d.path, d.content, d.created); } catch (err) { toast(err.message); } }
+  async function openDailyLog() {
+    try { const r = await backend.createDailyLog(dateOfDay(state.plan.days[state.index])); showEditor(r.path, r.content, r.created); }
+    catch (err) { toast(`Couldn't load the daily log: ${err.message}`); }
+  }
+  async function saveEditor() {
+    if (!editorPath) return;
+    $("editorSave").disabled = true;
+    $("editorState").textContent = "Saving…";
+    try { const r = await backend.writeFile(editorPath, $("editorText").value); $("editorState").textContent = `Saved ${r.path}.`; toast(`Saved ${r.path}`); }
+    catch (err) { $("editorState").textContent = `Not saved: ${err.message}`; }
+    finally { $("editorSave").disabled = !canWrite(); }
+  }
+  async function saveDailyProgress(silent) {
+    const day = state.plan.days[state.index], date = dateOfDay(day);
+    try {
+      if (editorPath === `daily-logs/${date}.md`) await backend.writeFile(editorPath, $("editorText").value);
+      const r = await backend.saveDailyProgress(date, { day, done: state.done });
+      if (editorPath === r.path) $("editorText").value = r.content;
+      toast(silent ? `All sessions done — saved to ${r.path}` : `Saved ${r.completed}/${r.total} to ${r.path}`);
+    } catch (err) { if (!silent) toast(`Couldn't save daily progress: ${err.message}`); }
+  }
+
+  // ---- events -----------------------------------------------------------
+  document.addEventListener("change", (e) => { const i = e.target.closest("input[data-task]"); if (i) toggleTask(i.dataset.task, i.checked); });
+  document.addEventListener("click", (e) => {
+    const g = e.target.closest("[data-goto]"); if (g) { go(Number(g.dataset.goto)); return; }
+    const tab = e.target.closest("[data-tab]"); if (tab) { state.tab = Number(tab.dataset.tab); renderPalette(); return; }
+    const un = e.target.closest("[data-unskip]");
+    if (un) { const d = un.dataset.unskip; changeSchedule((s) => ({ ...s, skips: s.skips.filter((x) => x !== d) }), `${fmtShort(d)} is a study day again.`); return; }
+    const pr = e.target.closest("[data-prompt]");
+    if (pr) {
+      const p = PROMPTS.get(pr.dataset.prompt);
+      if (p) copyText(p.full).then((ok) => toast(p.target === "app"
+        ? (ok ? "Prompt copied — paste it into Gemini and pick Canvas" : "Couldn't copy; open Gemini and use the Visual walkthrough button instead")
+        : (ok ? "Opening Gemini — full prompt also copied" : "Opening Gemini")));
+      return;
+    }
+    const f = e.target.closest("[data-open]"); if (f) openFile(f.dataset.open);
+  });
+  $("prevBtn").onclick = () => go(state.index);
+  $("nextBtn").onclick = () => go(state.index + 2);
+  $("todayBtn").onclick = () => go(currentIndex() + 1);
+  $("logBtn").onclick = openDailyLog;
+  $("progressBtn").onclick = () => saveDailyProgress(false);
+  $("skipBtn").onclick = () => skipDate(dateOfDay(state.plan.days[state.index]));
+  $("settingsBtn").onclick = openSettings;
+  $("setupBtn").onclick = openSettings;
+  $("settingsClose").onclick = () => { $("settingsModal").hidden = true; };
+  $("settingsModal").addEventListener("click", (e) => { if (e.target === $("settingsModal")) $("settingsModal").hidden = true; });
+  $("tokenSave").onclick = saveToken;
+  $("tokenClear").onclick = () => { backend.clearToken(); $("settingsState").textContent = "Token removed from this device."; refreshAccess(); renderSchedule(); renderDay(); };
+  $("startSave").onclick = () => {
+    const v = $("startInput").value, old = state.sched.start;
+    if (v && v !== old) changeSchedule((s) => ({ ...s, start: v }), `Day 1 is now ${fmtShort(v)}.`, (s) => ({ ...s, start: old }));
+  };
+  $("skipSave").onclick = () => { const v = $("skipInput").value; if (v && !state.sched.skips.includes(v)) skipDate(v); };
+  $("paletteToggle").onclick = (e) => { const c = document.querySelector(".palette").classList.toggle("collapsed"); e.currentTarget.setAttribute("aria-expanded", String(!c)); };
+  $("editorSave").onclick = saveEditor;
+  $("editorClose").onclick = () => { $("editorModal").hidden = true; editorPath = ""; };
+  $("jumpInput").onchange = (e) => { const n = Number(e.target.value); if (n) go(n); };
+  document.addEventListener("keydown", (e) => {
+    if (e.target.closest("input, textarea") || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === "Escape") { $("settingsModal").hidden = true; $("editorModal").hidden = true; editorPath = ""; return; }
+    if (e.key === "ArrowLeft") go(state.index); else if (e.key === "ArrowRight") go(state.index + 2); else if (e.key.toLowerCase() === "t") go(currentIndex() + 1);
+  });
+  window.addEventListener("hashchange", () => { const m = location.hash.match(/^#day-(\d+)$/); if (m && Number(m[1]) !== state.index + 1) go(Number(m[1])); });
+
+  // ---- boot -------------------------------------------------------------
+  (async () => {
+    try {
+      backend = await selectBackend();
+      if (backend.onStatus) backend.onStatus((text, kind) => { setSave(text, kind === "error"); refreshAccess(); });
+      if (window.matchMedia("(max-width: 620px)").matches) {
+        document.querySelector(".palette").classList.add("collapsed");
+        $("paletteToggle").setAttribute("aria-expanded", "false");
+      }
+      const [plan, progress, sched] = await Promise.all([backend.getPlan(), backend.getProgress(), backend.getSchedule()]);
+      state.plan = plan; state.done = progress.done || {}; state.sched = T.normalise(sched);
+      const m = location.hash.match(/^#day-(\d+)$/);
+      state.index = m ? Math.min(Math.max(1, Number(m[1])), plan.days.length) - 1 : currentIndex();
+      $("loading").hidden = true; $("app").hidden = false;
+      refreshAccess(); renderOverall(); renderDay();
+    } catch (err) {
+      $("loading").hidden = true;
+      $("fatal").hidden = false;
+      $("fatal").innerHTML = `<h2>The plan didn't load</h2><p>${esc(err.message)}</p><p>${backend && backend.kind === "github" ? "The site build may still be running — check the repository's Actions tab, then reload." : "Start it with <code>webapp\\start.bat</code> (or <code>python webapp/server.py</code>) and open <code>http://127.0.0.1:8766</code>."}</p>`;
+    }
+  })();
+})();
+</script>
+</body>
+</html>
